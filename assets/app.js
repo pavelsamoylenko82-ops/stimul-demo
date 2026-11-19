@@ -505,6 +505,11 @@ function setupForm() {
             phoneInput.value = '';
         };
 
+        if (window.location.hostname.endsWith('.github.io')) {
+            showStaticConfirmation();
+            return;
+        }
+
         try {
             const response = await fetch('api/lead', {
                 method: 'POST',
