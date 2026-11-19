@@ -26,6 +26,10 @@ html {
     scroll-padding-top: 78px;
 }
 
+section[id] {
+    scroll-margin-top: 84px;
+}
+
 body {
     margin: 0;
     min-width: 320px;
@@ -37,7 +41,7 @@ body {
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    padding-bottom: calc(58px + env(safe-area-inset-bottom));
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
 }
 
 ::selection {
@@ -1487,8 +1491,8 @@ input:focus-visible {
 .chat-widget {
     position: fixed;
     z-index: 70;
-    right: 14px;
-    bottom: calc(70px + env(safe-area-inset-bottom));
+    right: 12px;
+    bottom: calc(78px + env(safe-area-inset-bottom));
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -1700,33 +1704,46 @@ input:focus-visible {
 
 .mobile-bar {
     position: fixed;
-    z-index: 60;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    width: calc(100% - 24px);
+    max-width: 420px;
+    border-radius: 18px;
+    background: rgba(22, 24, 29, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 6px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    border-top: 1px solid var(--line);
-    background: var(--line);
-    padding-bottom: env(safe-area-inset-bottom);
+    grid-template-columns: 1fr 1.25fr;
+    gap: 6px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6);
+    z-index: 90;
 }
 
 .mobile-bar a {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
-    min-height: 58px;
-    background: #17181d;
-    color: var(--text);
-    font-size: 0.8rem;
+    gap: 8px;
+    height: 44px;
+    border-radius: 13px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #F5F6F8;
+    font-size: 14px;
     font-weight: 600;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-bar a svg {
+    flex: 0 0 auto;
 }
 
 .mobile-bar .mobile-bar-accent {
-    background: var(--accent);
-    color: var(--bg);
+    background: #F26419;
+    color: #FFFFFF;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 @media (min-width: 480px) {
