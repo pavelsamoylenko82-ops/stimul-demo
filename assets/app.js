@@ -203,6 +203,21 @@ const chatAnswers = {
     }
 };
 
+const quickAnswers = {
+    card: {
+        question: 'Подобрать карту под график',
+        answer: 'Если ходите когда удобно, берите UNLIM за 99 BYN на месяц. Для дневных тренировок до 16:00 есть Дневная карта: 10 посещений за 64 BYN. Скажите, в какие часы вам удобно, и админ подберёт вариант, а заодно запишет на пробную.'
+    },
+    trial: {
+        question: 'Записаться на пробную',
+        answer: 'Пробное посещение стоит 15 BYN, это разовая тренировка. Если хотите начать с тренером, есть пакет «СТАРТ для новичка»: 4 занятия за 60 BYN. Оставьте телефон, и администратор подберёт удобное время.'
+    },
+    discount: {
+        question: 'Как получить скидку -15%?',
+        answer: 'Скидка -15% действует на день рождения: 5 дней до и 5 дней после. Покажите документ администратору при покупке, и UNLIM за 99 BYN обойдётся в 84 BYN. Оставьте телефон, и мы посчитаем цену под вашу карту.'
+    }
+};
+
 let calcMode = 'regular';
 let activeDay = 'monday';
 
@@ -555,7 +570,12 @@ function setupChat() {
     const panel = $('#chatPanel');
     const close = $('#chatClose');
     const body = $('#chatBody');
+    const quickBox = $('#chatQuickQuestions');
+    const inputForm = $('#chatInputForm');
+    const input = $('#chatInput');
     if (!widget || !toggle || !panel || !body) return;
+
+    let isReplying = false;
 
     const openChat = () => {
         panel.classList.add('is-open');
@@ -568,6 +588,72 @@ function setupChat() {
         panel.classList.remove('is-open');
         panel.setAttribute('aria-hidden', 'true');
         toggle.setAttribute('aria-expanded', 'false');
+    };
+
+    const setQuickDisabled = (state) => {
+        if (!quickBox) return;
+        $$('button', quickBox).forEach((button) => {
+            button.disabled = state;
+        });
+    };
+
+    const scrollToEnd = () => {
+        body.scrollTop = body.scrollHeight;
+    };
+
+    const appendUserMessage = (text) => {
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-user';
+        bubble.textContent = text;
+        body.appendChild(bubble);
+        scrollToEnd();
+    };
+
+    const appendTyping = () => {
+        const typing = document.createElement('div');
+        typing.className = 'chat-typing';
+        typing.setAttribute('role', 'status');
+        typing.innerHTML = '<span class="chat-typing-dots"><i></i><i></i><i></i></span><span>Админ печатает...</span>';
+        body.appendChild(typing);
+        scrollToEnd();
+        return typing;
+    };
+
+    const appendReply = (text, service) => {
+        const reply = document.createElement('div');
+        reply.className = 'chat-reply';
+
+        const label = document.createElement('span');
+        label.textContent = 'АДМИН';
+        const copy = document.createElement('p');
+        copy.textContent = text;
+        reply.appendChild(label);
+        reply.appendChild(copy);
+        body.appendChild(reply);
+
+        const formLink = document.createElement('button');
+        formLink.type = 'button';
+        formLink.className = 'chat-form-link';
+        formLink.textContent = 'Оставить телефон для записи';
+        formLink.dataset.chatService = `Вопрос: ${service}`;
+        body.appendChild(formLink);
+        scrollToEnd();
+    };
+
+    const sendMessage = (item) => {
+        if (isReplying) return;
+        isReplying = true;
+        setQuickDisabled(true);
+
+        appendUserMessage(item.question);
+        const typing = appendTyping();
+
+        window.setTimeout(() => {
+            typing.remove();
+            appendReply(item.answer, item.question);
+            isReplying = false;
+            setQuickDisabled(false);
+        }, 600);
     };
 
     toggle.addEventListener('click', () => {
@@ -587,6 +673,28 @@ function setupChat() {
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') closeChat();
     });
+
+    if (quickBox) {
+        quickBox.addEventListener('click', (event) => {
+            const quickButton = event.target.closest('[data-quick]');
+            if (!quickButton) return;
+            const item = quickAnswers[quickButton.dataset.quick];
+            if (item) sendMessage(item);
+        });
+    }
+
+    if (inputForm && input) {
+        inputForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            sendMessage({
+                question: text,
+                answer: 'Спасибо, вопрос передал администратору. Оставьте телефон, и он перезвонит, чтобы всё обсудить.'
+            });
+        });
+    }
 
     body.addEventListener('click', (event) => {
         const questionButton = event.target.closest('[data-question]');
